@@ -67,7 +67,7 @@ itoa:
     inc dword [rbp]	; increase the length
     
     cmp rax,0		; was the result zero?
-    jnz .divloop	; yes it was, keep looping
+    jnz .divloop	; no it wasn't, keep looping
 
     mov rax,r8		; r8 now points to the beginning of the string - move it into rax
     mov rcx,[rbp]	; rbp contains the length - move it into rcx
