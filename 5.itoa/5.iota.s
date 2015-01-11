@@ -56,7 +56,7 @@ itoa:
     enter 4,0		; allocate 4 bytes for our local string length counter
     lea r8,[numbuf+10]	; load the end address of the buffer (past the very end)
     mov rcx,10		; divisor
-    mov [rbp],dword 0	; rbp will contain 4 bytes representing the length of the string - start at zero
+    mov [rbp-4],dword 0	; rbp-4 will contain 4 bytes representing the length of the string - start at zero
 
 .divloop:
     xor rdx,rdx		; Zero out rdx (where our remainder goes after idiv)
@@ -64,13 +64,13 @@ itoa:
     add rdx,0x30	; add 0x30 to the remainder so we get the correct ASCII value
     dec r8		; move the pointer backwards in the buffer
     mov byte [r8],dl	; move the character into the buffer
-    inc dword [rbp]	; increase the length
+    inc dword [rbp-4]	; increase the length
     
     cmp rax,0		; was the result zero?
     jnz .divloop	; no it wasn't, keep looping
 
     mov rax,r8		; r8 now points to the beginning of the string - move it into rax
-    mov rcx,[rbp]	; rbp contains the length - move it into rcx
+    mov rcx,[rbp-4]	; rbp-4 contains the length - move it into rcx
 
     leave		; clean up our stack
     ret
