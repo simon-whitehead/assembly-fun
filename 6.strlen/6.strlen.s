@@ -36,16 +36,18 @@ _start:
 
     int 0x80
 
+    ; Use the scasb version to print it out
     push msg
     call strlen_scasb
 
-    mov rdx,rax
+    mov rdx,rax		; strlen_scasb also returns the length in rax
     mov rax,sys_write
     mov rbx,stdout
     mov rcx,msg
 
     int 0x80
 
+    ; exit
     mov rax,sys_exit
     mov rbx,0
 
