@@ -63,3 +63,12 @@ dynamically allocated memory. It then fills the memory in with "Hello World!"
 and prints it to stdout. It should be noted that this is nowhere near as
 complicated as the implementations of `malloc` are. This simply asks for a 
 block of memory and utilizes it - there is no memory management involved.
+
+### 8. String concatentation (strcat)
+
+This project concatenates the strings "Hello " and "World!" before printing them
+to the console. It does so by allocating 16 kilobytes of memory (yes that is over-
+kill, but oh well) and using it as a string buffer with which to place the result.
+This project also demonstrates better use of registers and the 64-bit C-compliant
+calling convention using the `rdi`, `rsi` and `rdx` registers for passing arguments
+to functions.
