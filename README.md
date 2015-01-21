@@ -72,3 +72,7 @@ kill, but oh well) and using it as a string buffer with which to place the resul
 This project also demonstrates better use of registers and the 64-bit C-compliant
 calling convention using the `rdi`, `rsi` and `rdx` registers for passing arguments
 to functions.
+
+### 9. Strings to numbers (atoi)
+
+This project demonstrates an algorithm for converting ASCII strings to integers. It makes good use of varying register sizes and seems small for what it does. It converts the strings "23" and "32", adds the integer result to 100, then attempts to compare the result to the integer `123`. It then prints "Equal" or "Not equal". The tests are performed in the above order.
