@@ -85,6 +85,10 @@ _start:
 
 atoi:
 
+    push rbp
+    mov rbp,rsp
+    sub rsp,16
+
     xor rcx,rcx		; Zero out our counter
 
     mov rbx,10		; Setup the multiplier
@@ -92,9 +96,9 @@ atoi:
 .multiplyLoop:
     mov dl,[rdi+rcx]	; Select the character
     sub dl,0x30		; Subtract ASCII 48 from the character so that it equals its actual value
-    push rdx		; Preserve rdx
+    mov [rbp-8],rdx	; Preserve rdx
     mul rbx		; Multiply the current result by 10
-    pop rdx		; Bring rdx back
+    mov rdx,[rbp-8]	; Bring rdx back
     add al,dl		; Add the result to the value in al
     
     inc rcx		; Increase the counter
@@ -103,4 +107,5 @@ atoi:
 
     ; The result will be in in rax
 
+    leave
     ret
