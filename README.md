@@ -76,3 +76,9 @@ to functions.
 ### 9. Strings to numbers (atoi)
 
 This project demonstrates an algorithm for converting ASCII strings to integers. It makes good use of varying register sizes and seems small for what it does. It converts the strings "23" and "32", adds the integer result to 100, then attempts to compare the result to the integer `123`. It then prints "Equal" or "Not equal". The tests are performed in the above order.
+
+### 10. Includes
+
+This project demonstrates separating code into individual files for reuse. It contains a `strings` and `io` file for common string and IO operations such as `strlen`, `strcat`, `readline`, `print`, etc. It makes a few improvements to previous implementations of these and will continue to be used throughout the rest of the learning process (unless significant improvements can be made .. in which case newer versions will be written).
+
+The code itself prompts the user to enter two numbers, adds them together and prints the result to stdout.
