@@ -40,25 +40,25 @@ global _start
 
 _start:
 
-    enter 16,0
+    enter 16,0			; Allocate 16 bytes of stack space
 
-    call _welcome
+    call _welcome		; Call the welcome function
 
-    mov rdi,prompt_one
+    mov rdi,prompt_one		; Push our prompts onto registers and call the prompt function
     mov rsi,prompt_one.len
     call _prompt
 
-    mov [rbp-8],rax
+    mov [rbp-8],rax		; Store what the user entered on the stack
 
-    mov rdi,prompt_two
+    mov rdi,prompt_two		; Prompt for the second number
     mov rsi,prompt_two.len
     call _prompt
 
-    add rax,[rbp-8]
+    add rax,[rbp-8]		; Add the first result to the result of the second prompt
 
-    mov rdi,rax
+    mov rdi,rax			; Call itoa to convert the number to a string
     call _itoa
-    push rax
+    push rax			; Store this for later
 
     ; allocate some memory
 
@@ -67,42 +67,41 @@ _start:
 
     mov r9,rax	; Store its base
 
+    ; Concatenate the answer prompt with the sum of the entered numbers
     mov rdi,r9
     mov rsi,answer
     pop rdx
     call _strcat
 
+    ; Calculate the total length of the resulting string
     mov rdi,r9
     call _strlen
 
+    ; Print the result to the screen
     mov rdi,r9
     mov rsi,rax
     call _print
 
+    ; Add a space between the answer and the end
     mov rdi,newline_spacer
     mov rsi,2
     call _print
 
-;    mov [rbp-16],rax
-;    mov rdi,rax
-;    call _strlen
-;
-;    mov rdi,[rbp-16]
-;    mov rsi,rax
-;    call _print
-
+    ; Exit
     call _exit
 
-    leave
+    leave		; Restore the stack
     ret
 
 _welcome:
 
+    ; Print the welcome message to the screen
     mov rdi,welcome_msg
     mov rsi,welcome_msg.len
 
     call _print
 
+    ; Add a space underneath
     mov rdi,newline_spacer
     mov rsi,2
 
@@ -112,9 +111,10 @@ _welcome:
 
 _prompt:
 
-    call _print
-    call _readline
+    call _print		; Print the prompt that was passed in
+    call _readline	; Read the user's input
     
+    ; Call atoi to convert the users input to a number and return the number in rax
     mov rdi,rax
     call _atoi
 
@@ -122,6 +122,7 @@ _prompt:
 
 _exit:
 
+    ; execute the exit interrupt
     mov rax,sys_exit
     mov rbx,0
 

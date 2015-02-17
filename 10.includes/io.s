@@ -27,6 +27,7 @@ global _print, _readline
 
 _print:
 
+    ; Call the sys_write syscall
     mov rax,sys_write
     mov rbx,stdout
     mov rcx,rdi
@@ -38,6 +39,7 @@ _print:
 
 _readline:
 
+    ; Read a line of input from stdin into a 1024 byte buffer
     mov rax,sys_read
     mov rbx,stdin
     mov rcx,readline_buffer
