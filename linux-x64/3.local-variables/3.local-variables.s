@@ -13,6 +13,7 @@
 section .data
 
     msg db "Hello world!", 10, 0	; Message to print
+    msg.len equ $-msg
 
     sys_write equ 4
     sys_exit equ 1
@@ -25,6 +26,8 @@ global _start
 
 _start:
 
+    mov rdi,msg		; Move msg into rdi
+    mov rsi,msg.len	; Move the length of msg into rsi
     call print
 
     mov rax,sys_exit
@@ -34,15 +37,11 @@ _start:
 
 print:
 
-    enter 8,0		; Make room for local pointer (64bit .. 8 bytes)
-
-    mov qword rsp,msg	; Move msg address into the stack
     mov rax,sys_write
     mov rbx,stdout
-    mov rcx,rsp		; Write whats at this address in the stack
-    mov rdx,13
+    mov rcx,rdi		; Move what was passed in to rcx
+    mov rdx,rsi		; Use the length passed in through rsi
 
     int 0x80
 
-    leave
     ret
