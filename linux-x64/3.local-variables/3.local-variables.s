@@ -37,11 +37,19 @@ _start:
 
 print:
 
+    push rbp
+    mov rbp,rsp
+    sub rsp,16		; Allocate space for two local variables (2*8, one pointer and one integer)
+
+    mov [rbp-8],rdi	; Store our string pointer
+    mov [rbp-16],rsi	; Store our integer
+
     mov rax,sys_write
     mov rbx,stdout
-    mov rcx,rdi		; Move what was passed in to rcx
-    mov rdx,rsi		; Use the length passed in through rsi
+    mov rcx,[rbp-8]		; Local string pointer
+    mov rdx,[rbp-16]		; Local string length integer
 
     int 0x80
 
+    leave
     ret

@@ -24,17 +24,16 @@ syscall operations; namely, `sys_write` and `sys_exit`.
 ### 2. Function call
 
 This project demonstrates two ways to call a function and use an argument
-passed to it. The first example places a value into a register and print
-the argument to stdout. The second example uses an argument that is pushed
+passed to it. The first example places values into registers and prints
+them to stdout. The second example uses arguments that are pushed
 on to the stack.
 
 This project also demonstrates stack frame initialization and tear down.
 
 ### 3. Local variables
 
-This project demonstrates the `enter` and `leave` instructions for stack
-frame initialization. It then pushes a string into a local pointer variable
-and prints the string at the address held by the local variable. This isn't
+This project demonstrates using a local variable by storing a function argument
+in it then printing the string pointed to by the local variable. This isn't
 the best example of local variables .. but it was the first attempt (better
 examples are in #6. strlen, etc).
 
