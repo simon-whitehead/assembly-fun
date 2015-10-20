@@ -81,3 +81,7 @@ This project demonstrates an algorithm for converting ASCII strings to integers.
 This project demonstrates separating code into individual files for reuse. It contains a `strings` and `io` file for common string and IO operations such as `strlen`, `strcat`, `readline`, `print`, etc. It makes a few improvements to previous implementations of these and will continue to be used throughout the rest of the learning process (unless significant improvements can be made .. in which case newer versions will be written).
 
 The code itself prompts the user to enter two numbers, adds them together and prints the result to stdout.
+
+### Reading material
+
+- MSDN: [Overview of x64 Calling Conventions](https://msdn.microsoft.com/en-us/library/ms235286.aspx)
