@@ -13,13 +13,18 @@ section .data
     number dd 1234567890	; The number to print
 
     ; Syscall information
-    sys_write equ 4
-    stdout equ 1
     sys_exit equ 1
+    sys_write equ 4
+
+    ; Streams
+    stdout equ 1
+
+    ; Constants
+    BUFFER_SIZE equ 10
 
 section .bss
 
-    numbuf resb 10		; A buffer to store our string of numbers in
+    numbuf resb BUFFER_SIZE		; A buffer to store our string of numbers in
 
 section .text
 
@@ -27,34 +32,45 @@ global _start
 
 _start:
 
-    mov rax,[number]	; Move the number (123456789) into rax
+    mov rdi,[number]	; Move the number (123456789) into rax
     call itoa		; call the function
 
     ; Write the string returned in rax out to stdout
-    mov rdx,rcx		; The length is returned in rcx - move it to rdx for the syscall
-    mov rcx,rax		; The string pointer is returned in rax - move it to rcx for the syscall
-    mov rax,sys_write
-    mov rbx,stdout
-
-    int 0x80
+    mov rdi,rax		; The string pointer is returned in rax - move it to rdi for the function call
+    mov rsi,rcx
+    call print
 
     ; Write the newline character to stdout
-    mov rax,sys_write
-    mov rbx,stdout
-    mov rcx,newline
-    mov rdx,1
+    mov rdi,newline
+    mov rsi,1
+    call print
     
-    int 0x80
-
+   ; Exit
     mov rax,sys_exit
     mov rbx,0
 
     int 0x80
 
+; Args: (rdi: char*, rsi: int)
+print:
+    
+    mov rax,sys_write
+    mov rbx,stdout
+    mov rcx,rdi
+    mov rdx,rsi
+
+    int 0x80
+
+    ret
+
 itoa:
 
-    enter 4,0		; allocate 4 bytes for our local string length counter
-    lea r8,[numbuf+10]	; load the end address of the buffer (past the very end)
+    push rbp		
+    mov rbp,rsp
+    sub rsp,4		; allocate 4 bytes for our local string length counter
+
+    mov rax,rdi		; Move the passed in argument to rax
+    lea rdi,[numbuf+10]	; load the end address of the buffer (past the very end)
     mov rcx,10		; divisor
     mov [rbp-4],dword 0	; rbp-4 will contain 4 bytes representing the length of the string - start at zero
 
@@ -62,14 +78,14 @@ itoa:
     xor rdx,rdx		; Zero out rdx (where our remainder goes after idiv)
     idiv rcx		; divide rax (the number) by 10 (the remainder is placed in rdx)
     add rdx,0x30	; add 0x30 to the remainder so we get the correct ASCII value
-    dec r8		; move the pointer backwards in the buffer
-    mov byte [r8],dl	; move the character into the buffer
+    dec rdi		; move the pointer backwards in the buffer
+    mov byte [rdi],dl	; move the character into the buffer
     inc dword [rbp-4]	; increase the length
     
     cmp rax,0		; was the result zero?
     jnz .divloop	; no it wasn't, keep looping
 
-    mov rax,r8		; r8 now points to the beginning of the string - move it into rax
+    mov rax,rdi		; rdi now points to the beginning of the string - move it into rax
     mov rcx,[rbp-4]	; rbp-4 contains the length - move it into rcx
 
     leave		; clean up our stack
