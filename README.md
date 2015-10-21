@@ -22,7 +22,9 @@ purposes .. but that doesn't mean I want it to be incorrect.
 
 ## The road so far
 
-This repository currently contains the following pieces of code:
+There is a root level folder for each architecture the below samples have
+been written for. The currently available Arch/OS combination is listed
+in parenthesis next to the sample name. 
 
 ### 1. Hello World (64-bit: Linux, Windows)
       
