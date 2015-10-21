@@ -13,11 +13,11 @@
 
 section .data
 
-    sys_brk equ 45
-    sys_write equ 4
+    sys_exit	 equ 1
+    sys_write	 equ 4
+    sys_brk	 equ 45
     
     stdout equ 1
-    sys_exit equ 1
 
 section .text
 
@@ -26,7 +26,7 @@ global _start
 _start:
 
     ; Allocate 16 bytes
-    push 16
+    mov rdi,16
     call malloc
 
     call create_string	; helper function to create the string in the buffer located at rax
@@ -55,14 +55,14 @@ malloc:
     int 0x80
 
     ; Allocate the specified number of bytes passed in
-    add rax,[rsp+16]
+    add rax,rdi
     
     mov rbx,rax
     mov rax,sys_brk
 
     int 0x80
 
-    sub rax,[rsp+16]	; rax points to the HIGHEST address available. We need to subtract the original number of bytes so we point back at the start of the new region
+    sub rax,rdi		; rax points to the HIGHEST address available. We need to subtract the original number of bytes so we point back at the start of the new region
 
     ret
 
