@@ -84,8 +84,6 @@ strlen:
 
 ; This version of strlen uses the scasb instruction
 ; to scan the input string for the null terminator.
-; It also utilises the stack so we can allow the scasb
-; operator to use the rax register without fiddling.
 
 strlen_scasb:
 
@@ -93,7 +91,7 @@ strlen_scasb:
     mov rcx,-1		; Store -1 in rcx so that scasb runs forever (or until it finds a null terminator). scasb DECREMENTS rcx each iteration
     cld			; Clear the direction flag so scasb iterates forward through the input string
 
-    repne scasb		; Execute the scasb instruction. This goes up to and includes the null terminator plus another decrement of rcx. The length is rcx-2.
+    repne scasb		; Execute the scasb instruction. This leaves rdi pointing at the base of the null terminator.
 
     not rcx		; Invert the value of rcx so that we get the two's complement value of the count. E.g, a count of -25 results in 24.
     mov rax,rcx		; Move the length of the string into rax
