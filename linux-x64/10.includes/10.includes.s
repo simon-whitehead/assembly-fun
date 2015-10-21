@@ -22,7 +22,7 @@ section .data
     welcome_msg db "This program will add two numbers together.", 10
     welcome_msg.len equ $-welcome_msg
 
-    newline_spacer db 10, 10
+    newline_spacer db 10
 
     ; Prompts for the user
     prompt_one db "Enter your first number: ", 0
@@ -40,7 +40,10 @@ global _start
 
 _start:
 
-    enter 16,0			; Allocate 16 bytes of stack space
+    ; Allocate 32 bytes of stack space
+    push rbp
+    mov rbp,rsp
+    sub rsp,32
 
     call _welcome		; Call the welcome function
 
@@ -48,7 +51,7 @@ _start:
     mov rsi,prompt_one.len
     call _prompt
 
-    mov [rbp-8],rax		; Store what the user entered on the stack
+    mov [rbp-8],rax		; Store what the user entered in our local variable
 
     mov rdi,prompt_two		; Prompt for the second number
     mov rsi,prompt_two.len
@@ -58,33 +61,34 @@ _start:
 
     mov rdi,rax			; Call itoa to convert the number to a string
     call _itoa
-    push rax			; Store this for later
+    mov [rbp-16],rax		; Store this for later
 
-    ; allocate some memory
+    ; allocate 16kb of memory
 
     mov rdi,16384
     call _malloc
 
-    mov r9,rax	; Store its base
+    mov [rbp-24],rax	; Store its base
 
     ; Concatenate the answer prompt with the sum of the entered numbers
-    mov rdi,r9
+    mov rdi,[rbp-24]
     mov rsi,answer
-    pop rdx
+    mov rdx,[rbp-16]
     call _strcat
 
     ; Calculate the total length of the resulting string
-    mov rdi,r9
+    mov rdi,[rbp-24]
     call _strlen
 
     ; Print the result to the screen
-    mov rdi,r9
+    mov rdi,[rbp-24]
     mov rsi,rax
     call _print
 
-    ; Add a space between the answer and the end
+    ; Add two spaces between the answer and the end
     mov rdi,newline_spacer
-    mov rsi,2
+    mov rsi,1
+    call _print
     call _print
 
     ; Exit
@@ -103,7 +107,7 @@ _welcome:
 
     ; Add a space underneath
     mov rdi,newline_spacer
-    mov rsi,2
+    mov rsi,1
 
     call _print
 
