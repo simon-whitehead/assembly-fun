@@ -1,0 +1,3 @@
+#!/bin/bash
+nasm -f elf64 2.function-call.s
+ld 2.function-call.o -o 2.function-call
