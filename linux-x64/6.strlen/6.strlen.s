@@ -16,8 +16,9 @@ section .data
 
     ; Syscall information
     sys_write equ 4
-    stdout equ 1
     sys_exit equ 1
+
+    stdout equ 1
 
 section .text
 
@@ -25,7 +26,7 @@ global _start
 
 _start:
 
-    mov rax,msg		; Move the string into rax
+    mov rdi,msg		; Move the string into rdi
     call strlen
 
     ; print it to stdout
@@ -37,7 +38,7 @@ _start:
     int 0x80
 
     ; Use the scasb version to print it out
-    push msg
+    mov rdi,msg
     call strlen_scasb
 
     mov rdx,rax		; strlen_scasb also returns the length in rax
@@ -61,15 +62,15 @@ strlen:
 
     enter 4,0		; Setup the local stack
 
-    lea r8,[rax]	; Obtain a pointer to the start of the string
+    lea rdi,[rdi]	; Obtain a pointer to the start of the string
     mov qword [rbp-4],0 ; Initialize our counter to zero
 
 .searchloop:
     
-    cmp byte [r8],0x00	; Is this a null byte?
+    cmp byte [rdi],0x00	; Is this a null byte?
     je .endloop		; It is .. end it
 
-    inc r8 		; Its not a null byte .. increment the pointer to the string to move to the next character
+    inc rdi 		; Its not a null byte .. increment the pointer to the string to move to the next character
     inc qword [rbp-4]	; .. and increase the value in our local counter
 
     jmp .searchloop	; Jump up to the loop and try the next character
@@ -88,17 +89,13 @@ strlen:
 
 strlen_scasb:
 
-    enter 0,0		; Initialize the stack frame nicely for us
-
     xor rax,rax		; Set the value that scasb will search for. In this case it is zero (the null terminator byte)
     mov rcx,-1		; Store -1 in rcx so that scasb runs forever (or until it finds a null terminator). scasb DECREMENTS rcx each iteration
-    mov rdi,[rbp+16]	; Move the input string on the stack to rdi
     cld			; Clear the direction flag so scasb iterates forward through the input string
 
     repne scasb		; Execute the scasb instruction. This goes up to and includes the null terminator plus another decrement of rcx. The length is rcx-2.
 
     not rcx		; Invert the value of rcx so that we get the two's complement value of the count. E.g, a count of -25 results in 24.
-    lea rax,[rcx-1]	; The above inversion includes the null terminator, so return the count-1 to strip it
+    mov rax,rcx		; Move the length of the string into rax
 
-    leave
     ret
