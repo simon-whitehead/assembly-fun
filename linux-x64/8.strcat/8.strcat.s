@@ -64,9 +64,14 @@ _start:
 
     int 0x80
 
+    leave
+    ret
+
 strcat:
 
-    enter 8,0
+    push rbp
+    mov rbp,rsp
+    sub rsp,8		; Room for a local counter
 
     push rdi		; Push rdi on to the stack for safe keeping
     mov rdi,rsi		; Move the second argument into rdi then call strlen
