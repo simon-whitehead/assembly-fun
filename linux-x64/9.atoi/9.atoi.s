@@ -33,7 +33,7 @@ global _start
 
 _start:
 
-    lea rdi,[test_one]	; Move our first test string into rdi
+    mov rdi,test_one	; Move our first test string into rdi
     call atoi
 
     add rax,base	; Add 100 to the result
@@ -47,13 +47,12 @@ _start:
 
     int 0x80
 
-    lea rdi,[test_two]
+    mov rdi,test_two
     call atoi
 
     add rax,base	; Add 100 to the result
     cmp rax,sum		; Will equal 132 .. but not 123
     jne .notequal
-
 
     ; Add the "equal" code anyway .. just to make sure (but this second print should never be "Equal")
     mov rax,sys_write
@@ -67,7 +66,6 @@ _start:
     mov rbx,0
 
     int 0x80
-    
     
 .notequal:
 
