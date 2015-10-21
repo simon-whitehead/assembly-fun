@@ -26,24 +26,28 @@ global _start
 
 _start:
 
+    push rbp
+    mov rbp,rsp
+    sub rsp,4		; Local int32 variable
+
     mov rdi,16384
     call malloc		; Allocate 16kb
-    mov r9,rax		; Move the base pointer of the malloc'd buffer to r9
+    mov [rbp-4],rax	; Move the base pointer of the malloc'd buffer to r9
 
-    mov rdi,r9		; Pass the base pointer in
+    mov rdi,[rbp-4]	; Pass the base pointer in
     mov rsi,hello 	; Pass the string "Hello "
     mov rdx,world	; Pass the string "World!"
 
     call strcat		; Call strcat and have it combine the second and third arguments into the buffer passed in as the first argument
 
-    mov rdi,r9		; Move the pointer to the buffer into rdi
+    mov rdi,[rbp-4]	; Move the pointer to the buffer into rdi
     call strlen		; have strlen computer the length of the string in the buffer
 
     mov rdx,rax		; Move the result (the length of the string) to rdx
 
     mov rax,sys_write
     mov rbx,stdout 
-    mov rcx,r9
+    mov rcx,[rbp-4]
 
     int 0x80
 
