@@ -11,6 +11,13 @@ begun the process of porting it to other Operating Systems/Architectures; namely
 64-bit Windows. I will aim to port at least one of the original 10 folders per
 week starting today, 2015-10-22.
 
+## Contributing
+
+I am not an Assembly expert. Far from it. Now that is out of the way - can anything here be improved? I
+am certainly open to improvements or suggestions. Whether they be README, code or
+comment improvements. This repository is just a bit of fun and purely for learning
+purposes .. but that doesn't mean I want it to be incorrect.
+
 -----
 
 ## The road so far
