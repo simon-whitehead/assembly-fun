@@ -80,7 +80,10 @@ write:
 
     push rbp
     mov rbp,rsp
-    sub rsp,0x28	; Allocate another 32 bytes of Shadow Space for the WinAPI calls + another 8 for the 5th argument to WriteFile
+    
+    ; Allocate another 32 bytes of Shadow Space for the WinAPI calls + another 8 for the 5th argument to WriteFile.
+    ; The return address makes 48 which is a multiple of 16 - the stack is aligned
+    sub rsp,0x28	
 
     mov [rbp+0x10],rcx		; Argument 1
     mov [rbp+0x18],rdx		; Argument 2
