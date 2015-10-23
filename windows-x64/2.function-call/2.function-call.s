@@ -6,7 +6,9 @@
 ;    This program prints "Hello World!" to StdOut
 ;    by calling a function twice. It follows the
 ;    64-bit Windows ABI by passing the arguments
-;    via the RCX and RDX registers.
+;    via the RCX and RDX registers while also
+;    respecting the "Shadow Space" requirement of
+;    64-bit Windows.
 
 ; Windows APIs
 
@@ -17,16 +19,16 @@
 ; ); 
 extern GetStdHandle
 
-; WriteConsole
+; WriteFile
 ; ------------
-; BOOL WINAPI WriteConsole(
-;     _In_             HANDLE  hConsoleOutput,
-;     _In_       const VOID    *lpBuffer,
-;     _In_             DWORD   nNumberOfCharsToWrite,
-;     _Out_            LPDWORD lpNumberOfCharsWritten,
-;     _Reserved_       LPVOID  lpReserved
+; BOOL WINAPI WriteFile(
+;   _In_        HANDLE       hFile,
+;   _In_        LPCVOID      lpBuffer,
+;   _In_        DWORD        nNumberOfBytesToWrite,
+;   _Out_opt_   LPDWORD      lpNumberOfBytesWritten,
+;   _Inout_opt_ LPOVERLAPPED lpOverlapped
 ; );
-extern WriteConsoleA
+extern WriteFile
 
 ; ExitProcess
 ; -----------
@@ -49,39 +51,52 @@ section .data
     msg2.len             equ $-msg2
 
 section .bss
+
 empty               resd 1
 
 section .text
 
 start:
 
-    sub rsp,0x28
+    push rbp
+    mov rbp,rsp
+    sub rsp,0x28	; Allocate 32 bytes of Shadow Space + align it to 16 bytes (8 byte return address already on stack, so 8 + 40 = 16*3)
 
     mov rcx,msg1
     mov rdx,msg1.len
     call write
 
-    add rsp,0x28
+    mov rcx,msg2
+    mov rdx,msg2.len
+    call write
 
     mov rcx,NULL
     call ExitProcess
 
+    leave
     ret
 
 write:
 
-    mov [rsp+0x08],rcx		; Argument 1
-    mov [rsp+0x10],rdx		; Argument 2
+    push rbp
+    mov rbp,rsp
+    sub rsp,0x28	; Allocate another 32 bytes of Shadow Space for the WinAPI calls + another 8 for the 5th argument to WriteFile
+
+    mov [rbp+0x10],rcx		; Argument 1
+    mov [rbp+0x18],rdx		; Argument 2
 
     mov rcx,STD_OUTPUT_HANDLE	; Get handle to StdOut
     call GetStdHandle
 
-    mov rcx,rax			; hConsoleOutput
-    mov rdx,[rsp+0x08]		; lpBuffer
-    mov r8,[rsp+0x10]		; nNumberOfCharsToWrite
-    mov r9,empty		; lpNumberOfCharsWritten
-    push NULL			; lpReserved
-    call WriteConsoleA
+    mov rcx,rax				; hFile
+    mov rdx,[rbp+0x10]		; lpBuffer
+    mov r8,[rbp+0x18]		; nNumberOfBytesToWrite
+    mov r9,empty			; lpNumberOfBytesWritten
 
+    ; Move the 5th argument directly behind the Shadow Space
+    mov qword [rsp+0x20],0	; lpOverlapped
+    call WriteFile
+
+    leave
     ret
 
