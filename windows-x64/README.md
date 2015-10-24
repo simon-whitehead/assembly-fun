@@ -39,9 +39,7 @@ the preview function - which is already 8 bytes. Therefore, for a function to al
 
     start:
 
-        push rbp		; Preserve rbp
-        push rbp,rsp	; Save our stack pointer location
-        sub rsp,0x28	; Reserve 40 bytes on the stack for the next functions "Shadow Space"
+        sub rsp,0x28	; Reserve 32 + 8 + 8 (return address) bytes on the stack for the next functions "Shadow Space"
 
         call otherfunction
 
@@ -49,11 +47,15 @@ the preview function - which is already 8 bytes. Therefore, for a function to al
 
         push rbp		; Preserve rbp again, which means the top of the stack is now what rbp was
         mov rbp,rsp	 ; Store our stack pointer
-        sub rsp,0x28	; Allocate another 40 bytes of Shadow Space if this function calls another. Again, the return address being on the stack misaligns it so we need to align it again)
+        sub rsp,0x20	; Allocate 32 + 8 + 8 (return address + push rbp above) bytes of Shadow Space if this function calls another. Again, the return address being on the stack misaligns it so we need to align it again)
 
         ; Shadow Space of start function is accessible like this:
         mov [rbp+0x10],rcx	; Store Argument #1 in the start of the Shadow Space (at +16 because RBP is as above, and RBP+8 is the return address because of the call instruction)
         mov [rbp+0x18]
+
+If you disregard any local stack space assignments, then your stack alignment can be of the form `16n+8`. In hex that is simple, its `0xn8`.
+
+This however does not work if you `push rbp` in your prologue, as that adds another 8 bytes to the stack. To fix it, you need to pad it out to the nearest multiple of 16 (in our case it perfectly hits 48 .. 32 + 8 + 8, so we don't have to do anything).
 
 ### Don't push
 
@@ -75,8 +77,6 @@ If you take in to account the fact that we've allocated Shadow Space for the cal
 essentially have (on entry to the `add` function), a stack that looks like this:
 
     +-----------------+
-    |   Return Addr   |
-    +-----------------+
     |  r9 Shadow (8)  |
     +-----------------+
     |  r8 Shadow (8)  |
@@ -85,24 +85,26 @@ essentially have (on entry to the `add` function), a stack that looks like this:
     +-----------------+
     | rcx Shadow (8)  |
     +-----------------+
-    |        e        |  <--- RSP
+    |        e        |  
     +-----------------+
-     
+    |   Return Addr   | 
+    +-----------------+
+    |    Saved RBP    | <--- RSP
+    +-----------------+
+
 The problem with this, is now where the functions assume the first Shadow Space slot is (recall the example above uses `[rbp+0x10]` which is + 16 bytes from the stack pointer at the top of the function. This isn't shadow space anymore ... its what you've pushed to the stack as the fifth parameter (`e`). So how do you fix that?
 
-You allocate more stack space and move data in to it manually. Essentially, instead of allocating 32 bytes of Shadow Space on the stack, you can allocate the 32 + 8 more for the fifth parameter:
+You allocate more stack space and move data in to it manually. Essentially, instead of allocating 32 bytes of Shadow Space on the stack, you can allocate the 32 + 8 + 8 + 8 (push rbp and return address) more for the fifth parameter:
 
-    sub rsp,0x28
+    sub rsp,0x30
 
-32 + 8 = 40. The return address being on the stack adds another 8 bytes, so 40 + 8 = 48 - a multiple of 16. The stack is aligned and the ABI is satisfied, now you just need to put the fifth argument where it needs to be:
+32 + 8 = 40. The return address being on the stack adds another 8 bytes, so 40 + 8 = 48. The `push rbp` in the prologue adds another 8 which makes 56. This is not a multiple of 16 and so we pad it out to 64. The stack is aligned and the ABI is satisfied, now you just need to put the fifth argument where it needs to be:
 
     mov [rsp+20],e
 
 This moves the `e` value 32 bytes above the stack pointer. Essentially making the stack look like this:
 
 
-    +-----------------+
-    |   Return Addr   |
     +-----------------+
     |        e        |
     +-----------------+
@@ -112,7 +114,11 @@ This moves the `e` value 32 bytes above the stack pointer. Essentially making th
     +-----------------+
     | rdx Shadow (8)  |
     +-----------------+
-    | rcx Shadow (8)  | <--- RSP
+    | rcx Shadow (8)  | 
+    +-----------------+
+    |   Return Addr   | 
+    +-----------------+
+    |    Saved RBP    | <--- RSP
     +-----------------+
 
 Now the calling function can locate the parameters in order:
