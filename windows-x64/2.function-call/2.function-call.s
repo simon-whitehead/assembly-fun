@@ -58,8 +58,6 @@ section .text
 
 start:
 
-    push rbp
-    mov rbp,rsp
     sub rsp,0x28	; Allocate 32 bytes of Shadow Space + align it to 16 bytes (8 byte return address already on stack, so 8 + 40 = 16*3)
 
     mov rcx,msg1
@@ -73,7 +71,8 @@ start:
     mov rcx,NULL
     call ExitProcess
 
-    leave
+    add rsp,0x28	; Restore the stack pointer before exiting
+
     ret
 
 write:
@@ -82,8 +81,9 @@ write:
     mov rbp,rsp
     
     ; Allocate another 32 bytes of Shadow Space for the WinAPI calls + another 8 for the 5th argument to WriteFile.
-    ; The return address makes 48 which is a multiple of 16 - the stack is aligned
-    sub rsp,0x28	
+    ; The return address makes 48 and the above "push rbp" adds another 8 bytes, which makes 56.
+    ; 56 is not a multiple of 16, so we bump it out to 64 (48 + 8 + 8).
+    sub rsp,0x30
 
     mov [rbp+0x10],rcx		; Argument 1
     mov [rbp+0x18],rdx		; Argument 2
