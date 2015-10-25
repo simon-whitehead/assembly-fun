@@ -7,9 +7,31 @@ This folder contains NASM that is designed to run on a 64-bit Windows platform.
 to 64-bit Assembly on other platforms. I will try and outline the oddities that I am
 now aware of as I understand them. Please feel free to correct anything that is incorrect.
 
+### Stack alignment
+
+As with the AMD64/SystemV ABI, the Windows ABI dictates that the stack should be aligned on a 16-byte boundary. What this means is that, at the conclusion of the prologue of a function, the memory address that `rsp` points to should be aligned on a memory address that is a multiple of 16.
+
+The simple act of calling a function misaligns the stack by placing an 8 byte return address on the stack when entering a function.
+
+For example, assuming that the stack is aligned perfectly prior to this line:
+
+    call SomeFunction
+
+After that line executes, the stack is misaligned by 8 bytes. To align it again, we can let the normal prologue happen and align it there:
+
+    push rbp		; The stack is actually aligned after this to 16
+    mov rbp,rsp
+    sub rsp,0x20	; This allocates 32 bytes of space. 32 + the 16 bytes its already aligned to makes 48 which is a muiltiple of 16, so it is aligned properly
+
+or, align it manually (I _think_ this is okay.. I can't see any issue with it)
+
+    SomeFunction:
+
+        sub rsp,0x08
+
 ### Parameter passing
 
-First, 64-bit Windows uses 4 registers to pass parameters to functions. Any more then 4
+First, 64-bit Windows uses 4 registers to pass parameters to functions. Any more than 4
 and the stack comes in to play <sup>1</sup>.
 
 The registers are (in order): `rcx`, `rdx`, `r8`, `r9`. This means that, given a function
@@ -30,7 +52,8 @@ You would call it as such:
 
 The 64-bit Windows ABI specifies that _every single non-leaf function_ must allocate
 32 bytes of stack space for "register spill". This is commonly referred to as "Shadow 
-Space". The ABI states that it is the _callers_ job to allocate this stack space, and
+Space" and must be adjacent to the return address to the previous function. The ABI
+ states that it is the _callers_ job to allocate this stack space, and
 not the callee. The stack must also always be 16 byte aligned, which can be confusing
 because on entry to a function the last entry in the stack is the return address of
 the preview function - which is already 8 bytes. Therefore, for a function to allocate
@@ -130,6 +153,39 @@ Now the calling function can locate the parameters in order:
     c = [rbp+0x20]
     d = [rbp+0x28]
     e = [rbp+0x30]
+
+### Register Usage
+
+The 64-bit Windows ABI decides how certain registers should be used. It describes registers and their volatility.
+
+For example, the following (non floating point) registers are considered _volatile_. That is, their value can freely change between function calls and callers should not rely on their values being preserved across function calls:
+
+* `rax`
+* `rcx`
+* `rdx`
+* `r8`
+* `r9`
+* `r10:r11`
+
+The following (not floating point) registers are considered _non volatile_. That is, their value must remain across the boundary of a function call. This means that the callee must preserve their value in order to use them in their body (by pushing them on the stack or otherwise).
+
+* `r12:r15`
+* `rdi`
+* `rsi`
+* `rbx`
+* `rbp`
+* `rsp`
+
+A simple example of handling non volatile register is in the prologue and epilogue of a function with some allocated/aligned stack space:
+
+    push rbp			; <--- rbp is non volatile and must be the same value when it leaves as when it came in
+    mov rbp,rsp		; Overwrite rbp just for this method
+
+    ...
+
+    leave		; <-- this is shorthand for mov rsp,rbp + pop rbp, so it will restore rbp to what it was when it entered
+    ret
+
 
 <sup>1</sup> You don't generally see many manual calls to `push` when dealing with function calls in 64-bit Windows Assembly. See "Don't push" above.
 
