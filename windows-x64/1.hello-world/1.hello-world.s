@@ -50,6 +50,9 @@ section .text
 
 start:
 
+    ; Allocate 32 bytes of Shadow Space + 8 for firth argument to WriteFile + 8 already on the stack makes 48 (a multiple of 16)
+    sub rsp,0x28
+
     ; Get a handle to stdout
     mov rcx,STD_OUTPUT_HANDLE
     call    GetStdHandle
@@ -58,9 +61,12 @@ start:
     mov rdx,msg			; lpBuffer
     mov r8,msg.len		; nNumberOfBytesToWrite
     mov r9,empty		; lpNumberOfBytesWritten
-    push    NULL		; lpOverlapped
+    mov qword [rsp+0x20],NULL		; lpOverlapped (space for Argumtn 5 is 32 bytes back, adjacent the Shadow space we just allocated)
     call    WriteFile
 
     mov rcx,NULL
     call    ExitProcess
+
+    add rsp,0x28		; Fix the stack pointer
+    ret
 
