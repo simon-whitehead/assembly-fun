@@ -77,29 +77,27 @@ start:
 
 write:
 
-    push rbp
-    mov rbp,rsp
-    
-    ; Allocate another 32 bytes of Shadow Space for the WinAPI calls + another 8 for the 5th argument to WriteFile.
-    ; The return address makes 48 and the above "push rbp" adds another 8 bytes, which makes 56.
-    ; 56 is not a multiple of 16, so we bump it out to 64 (48 + 8 + 8).
-    sub rsp,0x30
+    ; Allocate another 40 bytes of stack space (the return address makes 48 total). Its 32
+    ; bytes of Shadow Space for the WinAPI calls + 8 more bytes for the fifth argument
+    ; to the WriteFile API call.
+    sub rsp,0x28
 
-    mov [rbp+0x10],rcx		; Argument 1
-    mov [rbp+0x18],rdx		; Argument 2
+    mov [rsp+0x38],rcx		; Argument 1 is 56 bytes back in the stack (40 above, 8 for return address, then 8 more for where it is)
+    mov [rsp+0x40],rdx		; Argument 2 is just after Argument 1
 
     mov rcx,STD_OUTPUT_HANDLE	; Get handle to StdOut
     call GetStdHandle
 
     mov rcx,rax				; hFile
-    mov rdx,[rbp+0x10]		; lpBuffer
-    mov r8,[rbp+0x18]		; nNumberOfBytesToWrite
+    mov rdx,[rsp+0x38]		; lpBuffer
+    mov r8,[rsp+0x40]		; nNumberOfBytesToWrite
     mov r9,empty			; lpNumberOfBytesWritten
 
     ; Move the 5th argument directly behind the Shadow Space
-    mov qword [rsp+0x20],0	; lpOverlapped
+    mov qword [rsp+0x58],0	; lpOverlapped, Argument 5 (just after the Shadow Space)
     call WriteFile
 
-    leave
+    add rsp,0x28		; Restore the stack pointer (remove the Shadow Space)
+
     ret
 
