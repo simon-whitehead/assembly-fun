@@ -54,12 +54,12 @@ start:
     mov rcx,STD_OUTPUT_HANDLE
     call    GetStdHandle
 
-    mov rcx,rax			; hFile
+    mov rcx,rax			; hConsoleOutput
     mov rdx,msg			; lpBuffer
-    mov r8,msg.len		; nNumberOfBytesToWrite
-    mov r9,empty		; lpNumberOfBytesWritten
-    push    NULL		; lpOverlapped
-    call    WriteFile
+    mov r8,msg.len		; nNumberOfCharsToWrite
+    mov r9,empty		; lpNumberOfCharsWritten
+    push    NULL		; lpReserved
+    call    WriteConsoleA
 
     mov rcx,NULL
     call    ExitProcess
