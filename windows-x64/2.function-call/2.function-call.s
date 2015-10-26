@@ -82,19 +82,19 @@ write:
     ; to the WriteFile API call.
     sub rsp,0x28
 
-    mov [rsp+0x38],rcx		; Argument 1 is 56 bytes back in the stack (40 above, 8 for return address, then 8 more for where it is)
-    mov [rsp+0x40],rdx		; Argument 2 is just after Argument 1
+    mov [rsp+0x30],rcx		; Argument 1 is 48 bytes back in the stack (40 for Shadow Space above, 8 for return address)
+    mov [rsp+0x38],rdx		; Argument 2 is just after Argument 1
 
     mov rcx,STD_OUTPUT_HANDLE	; Get handle to StdOut
     call GetStdHandle
 
     mov rcx,rax				; hFile
-    mov rdx,[rsp+0x38]		; lpBuffer
-    mov r8,[rsp+0x40]		; nNumberOfBytesToWrite
+    mov rdx,[rsp+0x30]		; lpBuffer
+    mov r8,[rsp+0x38]		; nNumberOfBytesToWrite
     mov r9,empty			; lpNumberOfBytesWritten
 
     ; Move the 5th argument directly behind the Shadow Space
-    mov qword [rsp+0x58],0	; lpOverlapped, Argument 5 (just after the Shadow Space)
+    mov qword [rsp+0x20],0	; lpOverlapped, Argument 5 (just after the Shadow Space 32 bytes back)
     call WriteFile
 
     add rsp,0x28		; Restore the stack pointer (remove the Shadow Space)
