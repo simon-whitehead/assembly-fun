@@ -88,6 +88,10 @@ when you see it in action.
 Recall that the rule is, the first 4 (integer) arguments passed to a function must be placed
 in the `rcx`, `rdx`, `r8` and `r9` registers. Anything else must be placed on the stack. Lets try that now:
 
+    sub rsp,0x20
+
+    ...
+
     mov rcx,a
     mov rdx,b
     mov r8,c
@@ -115,9 +119,12 @@ essentially have (on entry to the `add` function), a stack that looks like this:
     |    Saved RBP    | <--- RSP
     +-----------------+
 
-The problem with this, is now where the functions assume the first Shadow Space slot is (recall the example above uses `[rbp+0x10]` which is + 16 bytes from the stack pointer at the top of the function. This isn't shadow space anymore ... its what you've pushed to the stack as the fifth parameter (`e`). So how do you fix that?
+The problem with this, is the Shadow Space is no longer adjacent to the return address. Your fifth argument sits
+between the Shadow Space and the return address. So how do you fix that?
 
-You allocate more stack space and move data in to it manually. Essentially, instead of allocating 32 bytes of Shadow Space on the stack, you can allocate the 32 + 8 + 8 + 8 (push rbp and return address) more for the fifth parameter:
+You allocate more stack space and move data in to it manually. Essentially, instead of allocating 32 bytes
+ of Shadow Space on the stack, you can allocate the 32 + 8 + 8 (Shadow Space, `push rbp` and return address) + 8 more for
+ the fifth parameter:
 
     sub rsp,0x30
 
