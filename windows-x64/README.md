@@ -131,6 +131,7 @@ You allocate more stack space and move data in to it manually. Essentially, inst
 32 + 8 = 40. The return address being on the stack adds another 8 bytes, so 40 + 8 = 48. The `push rbp` in the prologue adds another 8 which makes 56. This is not a multiple of 16 and so we pad it out to 64. The stack is aligned and the ABI is satisfied, now you just need to put the fifth argument where it needs to be:
 
     mov [rsp+20],e
+    call add
 
 This moves the `e` value 32 bytes above the stack pointer. Essentially making the stack look like this:
 
@@ -144,11 +145,11 @@ This moves the `e` value 32 bytes above the stack pointer. Essentially making th
     +-----------------+
     | rdx Shadow (8)  |
     +-----------------+
-    | rcx Shadow (8)  | 
+    | rcx Shadow (8)  | <--- RSP (before call)
     +-----------------+
     |   Return Addr   | 
     +-----------------+
-    |    Saved RBP    | <--- RSP
+    |    Saved RBP    | <--- RSP (after call)
     +-----------------+
 
 Now the calling function can locate the parameters in order:
