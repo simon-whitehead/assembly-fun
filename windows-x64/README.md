@@ -187,6 +187,44 @@ A simple example of handling non volatile register is in the prologue and epilog
     ret
 
 
+### Remembering it all
+
+There are a couple of shortcuts that you can memorise to help with this stuff, rather than work it out each time manually.
+
+#### The Caller
+
+On the caller side, you basically want to allocate enough space for the following:
+
+    sub rsp, (highestParameterCount * 8)
+
+Where `highestParameterCount` is at least 4, or the highest number of parameters in any function you call from
+within the current function. For example, in Windows #2 we call a function called `write` and the highest 
+number of function arguments for a function it calls is 5 (`WriteFile` has 5 arguments, the rest have less).
+ Therefore, we `sub rsp, 0x28` (40). This just so happens to align the stack because of the return address already on
+ the stack (40 + 8 = 48). If it doesn't align the stack on a 16 byte boundary, then just round it upward until you
+hit a multiple of 16. This allocates enough space for the Shadow Space plus the fifth parameter to `WriteFile`.
+
+To move (not push) arguments _after_ the Shadow Space, you just need to start at an offset `0x20` bytes from `rsp`.
+
+    mov rcx,arg1
+    mov rdx,arg2
+    mov r8,arg3
+    mov r9,arg4
+
+    ; 5th argument always starts at 0x20
+    mov qword [rsp+0x20],arg5
+
+#### The Callee
+
+When you have a prologue that includes a `push rbp`, then your Shadow Space always starts at `[rbp+0x10]`.
+
+On the callee side, you need to use an offset from `rbp` (if you can...), otherwise the distance from `rsp` will
+ change because of the local frame. This means, your fifth argument that is adjacent to the Shadow Space is always
+ located 32+8+8 bytes away from `rbp`where your prologue includes a `push rbp`.
+
+    mov rax,[rbp+0x30]	; Move the 5th argument to this function in to rax
+
+
 <sup>1</sup> You don't generally see many manual calls to `push` when dealing with function calls in 64-bit Windows Assembly. See "Don't push" above.
 
 
