@@ -47,7 +47,7 @@ in it then printing the string pointed to by the local variable. The 64-bit Wind
 version demonstrates local variables in relation to the local stack frame
 that contains Shadow Space.
 
-### 4. Read input (64-bit: Linux)
+### 4. Read input (64-bit: Linux, Windows)
 
 This project reads the user input from StdIn and echoes it back to StdOut.
 The project itself demonstrates the use of the data segment to pre-allocate
