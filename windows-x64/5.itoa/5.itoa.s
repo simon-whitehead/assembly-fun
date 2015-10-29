@@ -1,3 +1,10 @@
+; Simon Whitehead, 2015
+; ---------------------
+;
+; 5. itoa
+;
+;    This program converts numbers into ASCII characters and
+;    prints them to stdout.
 
 ; Windows APIs
 
