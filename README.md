@@ -53,7 +53,7 @@ This project reads the user input from StdIn and echoes it back to StdOut.
 The project itself demonstrates the use of the data segment to pre-allocate
 a block of memory. This block of memory is used as the buffer for user input.
 
-### 5. Numbers to strings (itoa) (64-bit: Linux)
+### 5. Numbers to strings (itoa) (64-bit: Linux, Windows)
 
 This project demonstrates an `itoa` algorithm to print numbers
 to StdOut. The algorithm and code is [explained in detail on my blog](https://simonsdotnet.wordpress.com/2015/01/13/converting-numbers-to-strings-in-nasm-a-basic-itoa-implementation/).
