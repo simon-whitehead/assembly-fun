@@ -58,7 +58,7 @@ a block of memory. This block of memory is used as the buffer for user input.
 This project demonstrates an `itoa` algorithm to print numbers
 to StdOut. The algorithm and code is [explained in detail on my blog](https://simonsdotnet.wordpress.com/2015/01/13/converting-numbers-to-strings-in-nasm-a-basic-itoa-implementation/).
 
-### 6. String length (strlen) (64-bit: Linux)
+### 6. String length (strlen) (64-bit: Linux, Windows)
 
 This project demonstrates two ways to determine the length of a null terminated
 string. The first example manually loops through a block of memory looking
