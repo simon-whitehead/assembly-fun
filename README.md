@@ -60,10 +60,8 @@ to StdOut. The algorithm and code is [explained in detail on my blog](https://si
 
 ### 6. String length (strlen) (64-bit: Linux, Windows)
 
-This project demonstrates two ways to determine the length of a null terminated
-string. The first example manually loops through a block of memory looking
-for a null byte. The second examples uses the `scasb` instruction to search
-for the null byte.
+This project demonstrates how to determine the length of a NULL-terminated string. It
+uses the `scasb` instruction to scan a string looking for a NULL byte.
 
 ### 7. Dynamic memory allocation (malloc) (64-bit: Linux)
 
