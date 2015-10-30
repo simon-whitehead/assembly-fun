@@ -63,7 +63,7 @@ to StdOut. The algorithm and code is [explained in detail on my blog](https://si
 This project demonstrates how to determine the length of a NULL-terminated string. It
 uses the `scasb` instruction to scan a string looking for a NULL byte.
 
-### 7. Dynamic memory allocation (malloc) (64-bit: Linux)
+### 7. Dynamic memory allocation (malloc) (64-bit: Linux, Windows)
 
 This project demonstrates asking the host operating system for some 
 dynamically allocated memory. It then fills the memory in with "Hello World!"
