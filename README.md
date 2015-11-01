@@ -70,7 +70,7 @@ dynamically allocated memory. It then fills the memory in with "Hello World!"
 and prints it to StdOut. This is not a full implementation of `malloc`, but
 it demonstrates dynamic memory allocation.
 
-### 8. String concatentation (strcat) (64-bit: Linux)
+### 8. String concatentation (strcat) (64-bit: Linux, Windows)
 
 This project concatenates the strings "Hello " and "World!" before printing them
 to StdOut. It does so by allocating 16 kilobytes of memory and using it as a
