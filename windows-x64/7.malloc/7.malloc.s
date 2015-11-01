@@ -93,7 +93,8 @@ start:
     mov [rbp-0x08],rax
 
     ; Allocate 16 bytes of memory from the heap
-    mov rcx,BUFFER_SIZE
+    mov rcx,rax
+    mov rdx,BUFFER_SIZE
     call malloc
 
     ; Store our buffer pointer
@@ -121,13 +122,14 @@ start:
     leave
     ret
 
+; RCX: hHeap
+; RDX: dwBytes
 malloc:
 
     sub rsp,0x28	; 32 bytes for HeapAlloc + 8 for the return address makes 40, aligned to 48
 
-    mov rcx,rax			; hHeap
+    mov r8,rdx			; dwBytes
     mov rdx,HEAP_ZERO_MEMORY	; dwFlags
-    mov r8,rcx			; dwBytes
     call HeapAlloc
 
     add rsp,0x28
