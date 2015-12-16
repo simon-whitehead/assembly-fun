@@ -1,14 +1,10 @@
 ; Simon Whitehead, 2015
 ; ---------------------
 ;
-; 2. Function calls
+; 4. Read input
 ;
-;    This program prints "Hello World!" to StdOut
-;    by calling a function twice. It follows the
-;    64-bit Windows ABI by passing the arguments
-;    via the RCX and RDX registers while also
-;    respecting the "Shadow Space" requirement of
-;    64-bit Windows.
+;    This program echos what the user types into
+;    the console back to them.
 
 ; Windows APIs
 
